@@ -13,11 +13,11 @@ const rename = async () => {
         .catch(() => false),
     ]);
     if (!wrongFileName || renamedFile) {
-      throw new Error("FS bot");
+      throw new Error("FS operation failed");
     }
     fs.rename("./files/wrongFilename.txt", "./files/properFilename.md");
   } catch (err) {
-    console.log(err);
+    throw new Error("FS operation failed");
   }
 };
 

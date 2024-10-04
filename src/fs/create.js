@@ -6,7 +6,7 @@ const create = async () => {
     } else {
       fs.writeFile("./files/fresh.txt", "I am fresh and young", (error) => {
         if (error) {
-          throw error;
+          throw new Error("FS operation failed");
         }
       });
     }
