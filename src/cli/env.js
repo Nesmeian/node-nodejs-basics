@@ -5,4 +5,4 @@ const parseEnv = () => {
   });
 };
 
-parseEnv();
+parseEnv(); // to run script use   (npm run cli:env) in terminal
