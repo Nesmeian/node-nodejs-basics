@@ -1,41 +1,33 @@
 import zlib from "node:zlib";
 import path from "path";
 import url from "url";
-import { pipeline } from "node:stream";
 import fs from "fs/promises";
 import { createReadStream, createWriteStream } from "node:fs";
 
 const decompress = async () => {
   const currentPathDir = path.dirname(url.fileURLToPath(import.meta.url));
-  const compressFilePath = path.join(
+  const decompressFileDestinationPath = path.join(
     currentPathDir,
     "files",
     "fileToCompress.txt"
   );
-  const compressFileDestinationPath = path.join(
-    currentPathDir,
-    "files",
-    "archive.gz"
-  );
+  const decompressFilePath = path.join(currentPathDir, "files", "archive.gz");
   const gunzip = zlib.createGunzip();
-  const compressFileDestination = createReadStream(compressFileDestinationPath);
-  const compressFile = createWriteStream(compressFilePath);
-  const checkCompressFile = await fs
-    .stat(compressFilePath)
-    .then(() => true)
-    .catch(() => false);
+  const decompressFile = createReadStream(decompressFilePath);
+  const decompressFileDestination = createWriteStream(
+    decompressFileDestinationPath
+  );
+
   try {
-    pipeline(compressFileDestination, gunzip, compressFile, (err) => {
-      if (err) {
-        console.log(err);
-        throw new Error("FS operation failed");
-      } else {
-        console.log("Decompressing is completed");
-      }
-    });
+    await fs.access(decompressFilePath, fs.constants.F_OK);
   } catch (err) {
-    console.log(err);
+    throw new Error("Operation Failed");
   }
+  decompressFile.pipe(gunzip).pipe(decompressFileDestination);
+  decompressFileDestination.on("finish", async (err) => {
+    console.log("Operation completed");
+    await fs.unlink(decompressFilePath);
+  });
 };
 
 await decompress();
